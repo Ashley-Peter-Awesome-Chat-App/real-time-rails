@@ -1,5 +1,3 @@
-
-
 window.app.realtime = {
 	connect : function() {
 		window.app.socket = io.connect("http://0.0.0.0:5001");

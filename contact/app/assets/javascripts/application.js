@@ -16,7 +16,9 @@
 //= require backbone
 //= require friend
 //= require socket.io
+//= require main
 
 
+window.app.realtime.connect();
 
 
