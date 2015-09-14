@@ -1,19 +1,36 @@
 console.log("linked");
+window.app = {
+	models: {},
+	views: {},
+	collections: {}
+};
+
+_.extend(window.app, Backbone.Events);
 
 $(function(){
-	var Friend = Backbone.Model.extend({
+	app.models.Friend = Backbone.Model.extend({
 		urlRoot: '/friends',
 		removeFriend: function(friend) {
 			this.destroy();
 		}
 	});
 
-	var FriendCollection = Backbone.Collection.extend({
+	app.collections.FriendCollection = Backbone.Collection.extend({
 		url: '/friends',
-		model: Friend,
+		model: app.models.Friend,
+		initialize: function() {
+			app.on('friends', this.handle_change, this);
+		},
+		handle_change: function(message) {
+			var model;
+
+			if(message.action === 'create') {
+				this.add(message.obj); 
+			}
+		}
 	});
-	var FriendView = Backbone.View.extend({
-		model: Friend,
+	app.views.FriendView = Backbone.View.extend({
+		model: app.models.Friend,
 		tagName: "li",
 		initialize:  function() {
 			this.listenTo(this.model, "change", this.render);
@@ -42,7 +59,7 @@ $(function(){
 		}
 	});
 
-	var FriendCollectionView = Backbone.View.extend({
+	app.views.FriendCollectionView = Backbone.View.extend({
 		el: $("#friend-list"),
 		initialize: function(){
 			this.listenTo(this.collection, "add", this.newFriend);
@@ -50,7 +67,7 @@ $(function(){
 			this.collection.fetch();
 		},
 		newFriend: function(friend) {
-			var newView = new FriendView({ model: friend});
+			var newView = new app.views.FriendView({ model: friend});
 			this.$el.append(newView.render().el);
 		},
 		updateFriend: function(friend) {
@@ -59,7 +76,7 @@ $(function(){
 		},
 	});
 
-	var FormView = Backbone.View.extend({
+	app.views.FormView = Backbone.View.extend({
 		urlRoot: '/friends',
 		el: $("#new-friend-form"),
 		initialize: function(){
@@ -71,7 +88,7 @@ $(function(){
 		},
 		addAFriend: function(event){
 			event.preventDefault();
-			var friend = new Friend({
+			var friend = new app.models.Friend({
 				first: this.$first.val(),
 				last: this.$last.val()
 			});
@@ -95,14 +112,16 @@ $(function(){
 		},
 		homepage: function() {
 			$("#friend-list").empty();
-			var newFriendCollection = new FriendCollection({});
-			var newFriendCollectionView = new FriendCollectionView({collection: newFriendCollection});
-			var formView = new FormView();
+			 newFriendCollection = new app.collections.FriendCollection({});
+			newFriendCollectionView = new app.views.FriendCollectionView({collection: newFriendCollection});
+			formView = new app.views.FormView();
 		}
 	});
 
 var myRouter = new Router();
-
+ var newFriendCollection;
+var newFriendCollectionView;
+var formView;
 
 Backbone.history.start();
 

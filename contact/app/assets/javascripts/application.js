@@ -15,6 +15,7 @@
 //= require underscore
 //= require backbone
 //= require friend
+//= require socket.io
 
 
 
