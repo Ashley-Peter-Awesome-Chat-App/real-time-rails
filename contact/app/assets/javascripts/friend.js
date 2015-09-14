@@ -1,4 +1,5 @@
 console.log("linked");
+
 window.app = {
 	models: {},
 	views: {},
